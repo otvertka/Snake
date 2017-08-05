@@ -17,6 +17,8 @@ public class GameEngine {
     public static final int GameWidth = 28;
     public static final int GameHeight = 42;
 
+    public int count = 0;
+
     private List<Coordinate> walls = new ArrayList<>();
     private List<Coordinate> snake = new ArrayList<>();
     private List<Coordinate> apples = new ArrayList<>();
@@ -133,6 +135,7 @@ public class GameEngine {
         }
 
         if (increaseTail){
+            count++;
             snake.add(new Coordinate(newX,newY));
             increaseTail = false;
         }

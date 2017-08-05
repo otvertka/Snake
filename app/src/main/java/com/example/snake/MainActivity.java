@@ -3,6 +3,8 @@ package com.example.snake;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.AppCompatButton;
+import android.support.v7.widget.AppCompatTextView;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
@@ -21,16 +23,31 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
 
     private float prevX, prevY;
 
+    //my fi4is
+    AppCompatButton button;
+    AppCompatTextView textView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        //раньше это было в onCreate()
         gameEngine = new GameEngine();
         gameEngine.initGame();
 
         snakeView = (SnakeView) findViewById(R.id.snakeView);
         snakeView.setOnTouchListener(this);
+
+        button = (AppCompatButton) findViewById(R.id.btn);
+        textView = (AppCompatTextView) findViewById(R.id.tvCount);
 
         StartUpdateHandler();
     }
@@ -56,7 +73,19 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     }
 
     private void onGameLost() {
+        // а здесб только Тоаст
         Toast.makeText(this, "You lost!", Toast.LENGTH_SHORT).show();
+        button.setVisibility(View.VISIBLE);
+        textView.setText("Яблочек скушано: " + gameEngine.count);
+        textView.setVisibility(View.VISIBLE);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                button.setVisibility(View.INVISIBLE);
+                textView.setVisibility(View.INVISIBLE);
+                onStart();
+            }
+        });
     }
 
     @Override
