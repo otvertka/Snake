@@ -7,6 +7,7 @@ import com.example.snake.enums.TileType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by Дмитрий on 02.08.2017.
@@ -18,10 +19,18 @@ public class GameEngine {
 
     private List<Coordinate> walls = new ArrayList<>();
     private List<Coordinate> snake = new ArrayList<>();
+    private List<Coordinate> apples = new ArrayList<>();
+
+    private Random random = new Random();
+    private boolean increaseTail = false;
 
     private Direction currentDirection = Direction.East;
 
     private GameState currentGameState = GameState.Running;
+
+    private Coordinate getSnakeHead(){
+        return snake.get(0);
+    }
 
     public GameEngine(){
 
@@ -31,6 +40,8 @@ public class GameEngine {
 
         AddSnake();
         AddWalls();
+
+        AddApples();
     }
 
     public void UpdateDirection(Direction newDirection){
@@ -63,6 +74,27 @@ public class GameEngine {
                 currentGameState = GameState.Lost;
             }
         }
+
+        //check self collision
+        for (int i = 1; i < snake.size(); i++) {
+            if (getSnakeHead().equals(snake.get(i))){
+                currentGameState = GameState.Lost;
+                return;
+            }
+        }
+
+        //check apples
+        Coordinate appleToRemove = null;
+        for (Coordinate apple: apples) {
+            if (getSnakeHead().equals(apple)){
+                appleToRemove = apple;
+                increaseTail = true;
+            }
+        }
+        if (appleToRemove != null){
+            apples.remove(appleToRemove);
+            AddApples();
+        }
     }
 
     public TileType[][] getMap(){
@@ -74,22 +106,35 @@ public class GameEngine {
             }
         }
 
-        for (Coordinate s: snake) {
-            map[s.getX()][s.getY()] = TileType.SnakeTail;
-        }
-        map[snake.get(0).getX()][snake.get(0).getY()] = TileType.SnakeHead;
-
         for (Coordinate wall: walls) {
             map[wall.getX()][wall.getY()] = TileType.Wall;
         }
+
+        for (Coordinate s: snake) {
+            map[s.getX()][s.getY()] = TileType.SnakeTail;
+        }
+
+        for (Coordinate a: apples) {
+            map[a.getX()][a.getY()] = TileType.Apple;
+        }
+        map[snake.get(0).getX()][snake.get(0).getY()] = TileType.SnakeHead;
+
 
         return map;
     }
 
     private void UpdateSnake(int x, int y){
+        int newX = snake.get( snake.size() - 1).getX();
+        int newY = snake.get( snake.size() - 1).getY();
+
         for (int i = snake.size() -1; i > 0 ; i--) {
             snake.get(i).setX( snake.get(i-1).getX() );
             snake.get(i).setY( snake.get(i-1).getY() );
+        }
+
+        if (increaseTail){
+            snake.add(new Coordinate(newX,newY));
+            increaseTail = false;
         }
 
         snake.get(0).setX( snake.get(0).getX() + x);
@@ -119,6 +164,37 @@ public class GameEngine {
             walls.add(new Coordinate(0, y));
             walls.add(new Coordinate(GameWidth - 1, y));
         }
+    }
+
+    private void AddApples(){
+        Coordinate coordinate = null;
+
+        boolean added = false;
+        while ( !added ){
+            int x = 1 + random.nextInt( GameWidth - 2);
+            int y = 1 + random.nextInt( GameHeight - 2);
+
+            coordinate = new Coordinate( x, y );
+            boolean collision = false;
+            for ( Coordinate s: snake) {
+                if (s.equals(coordinate)){
+                    collision = true;
+                    //break;
+                }
+            }
+
+            //этот цикл нужен??
+            for (Coordinate a: apples ) {
+                if (a.equals(coordinate)){
+                    collision = true;
+                    //break;
+                }
+            }
+
+            added = !collision;
+        }
+
+        apples.add(coordinate);
     }
 
     public GameState getCurrentGameState(){
