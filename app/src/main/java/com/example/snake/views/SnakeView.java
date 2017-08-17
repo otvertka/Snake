@@ -11,10 +11,6 @@ import android.view.View;
 
 import com.example.snake.enums.TileType;
 
-/**
- * Created by Дмитрий on 02.08.2017.
- */
-
 public class SnakeView extends View {
 
     private static final String LOG_TAG = "myLog";
